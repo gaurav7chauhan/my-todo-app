@@ -1,0 +1,20 @@
+import { z } from "zod";
+
+export const todoSchema = z.object({
+    textInput: z
+    .string()
+    .max(259, "You reached the limit of words")
+    .min(1, "Todo text is required"),
+
+  title: z.string().min(1, "Title is required"),
+  
+  description: z.string().optional(),
+  
+  owner: z.string(),
+  
+  isCompleted: z.boolean().default(false),
+  
+  priority: z.enum(["low", "medium", "high"]).optional(),
+  
+  tags: z.array(z.string()).optional(),
+});
