@@ -20,6 +20,8 @@ export const registerSchema = z.object({
       "Password must include at least one special character"
     ),
 
+  otp: z.number().optional(),
+
   avatar: z.string().url("Avatar must be a valid URL").optional(),
 
   refreshToken: z.string().optional(), // ✅ Make it optional here — usually not sent during register
