@@ -1,3 +1,4 @@
+import { Todo } from "../models/todo.schema.js";
 import { User } from "../models/user.schema.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -6,12 +7,15 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from "../utils/generateToken.js";
+import { loginValidate } from "../validators/login.validator.js";
+import { changePasswordSchema } from "../validators/password.validate.js";
+import { updateUserSchema } from "../validators/updatedUserValidator.js";
+import { registerSchema } from "../validators/user.validator.js";
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password, otp, avatar } = req.body;
-  if (!username || !email || !password) {
-    throw new ApiError(400, "Please provide username, email or password!");
-  }
+  const { username, email, password, otp, avatar } = registerSchema.parse(
+    req.body
+  );
 
   const existingEmail = await User.findOne({ email });
   if (existingEmail) {
@@ -39,10 +43,7 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
-  if ((!username && !email) || !password) {
-    throw new ApiError(400, "Please provide email or username and password");
-  }
+  const { username, email, password } = loginValidate.parse(req.body);
 
   const existingUser = await User.findOne({
     $or: [{ email }, { username }],
@@ -87,7 +88,7 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
-  const user = req.user._id;
+  const user = req.user._id; //from auth.middleware
   await User.findByIdAndUpdate(
     user,
     {
@@ -96,9 +97,76 @@ const logoutUser = asyncHandler(async (req, res) => {
     { new: true }
   );
 
-  res.clearCookie("refreshToken")
+  res.clearCookie("refreshToken");
 
-  return res.status(200).json(200, {}, "User successfully logged out");
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "User successfully logged out"));
 });
 
-export { registerUser, loginUser, logoutUser };
+const changePassword = asyncHandler(async (req, res) => {
+  const { prevPassword, newPassword } = changePasswordSchema.parse(req.body);
+
+  const user = await User.findById(req.user._id);
+
+  const isMatch = await user.isPasswordMatch(prevPassword);
+  if (!isMatch) {
+    throw new ApiError(401, "Current password is incorrect.");
+  }
+
+  user.password = newPassword;
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Password changed successfully."));
+});
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).select("-password -otp");
+  if (!user) throw new ApiError(404, "User not found");
+
+  const todos = await Todo.find({ owner: user._id }).select(
+    "title description isCompleted"
+  );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, { user, todos }, "User profile fetched successfully")
+    );
+});
+
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const { setUsername, setEmail, setAvatar } = updateUserSchema.parse(req.body);
+  if (!setUsername && !setEmail && !setAvatar) {
+    throw new ApiError(400, "Please provide data to change");
+  }
+
+  const updates = {};
+
+  if (setUsername) updates.username = setUsername;
+  if (setEmail) updates.email = setEmail;
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: updates,
+    },
+    { new: true }
+  ).select("-password -otp");
+  if (!user) throw new ApiError(400, "User not found");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "User profile updated successfully"));
+});
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  changePassword,
+  getCurrentUser,
+  updateUserProfile,
+};

@@ -1,13 +1,14 @@
 import { z } from "zod";
 
-export const registerSchema = z.object({
+export const updateUserSchema = z.object({
   username: z
     .string()
     .min(3, "Username must be at least 3 characters")
     .max(30, "Username must be less than 30 characters")
-    .trim(),
+    .trim()
+    .optional(),
 
-  email: z.string().email("Email is invalid").trim(),
+  email: z.string().email("Email is invalid").trim().optional(),
 
   password: z
     .string()
@@ -17,9 +18,8 @@ export const registerSchema = z.object({
     .regex(/[a-z]/, "Password must include at least one lowercase letter")
     .regex(/[0-9]/, "Password must include at least one number")
     .regex(/[@$!%*?&#]/, "Password must include at least one special character")
-    .trim(),
+    .trim()
+    .optional(),
 
-  otp: z.number().optional(),
-
-  avatar: z.string().url("Avatar must be a valid URL").optional(),
+  avatar: z.string().url("Avatar must be a valid URL").trim().optional(),
 });
