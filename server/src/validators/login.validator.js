@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const loginValidate = z
+export const loginValidator = z
   .object({
     username: z
       .string()

@@ -3,19 +3,20 @@ import { User } from "../models/user.schema.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import {
   generateAccessToken,
   generateRefreshToken,
 } from "../utils/generateToken.js";
-import { loginValidate } from "../validators/login.validator.js";
-import { changePasswordSchema } from "../validators/password.validate.js";
+import { loginValidator } from "../validators/login.validator.js";
+import { passwordValidator } from "../validators/password.validate.js";
 import { updateUserSchema } from "../validators/updatedUserValidator.js";
 import { registerSchema } from "../validators/user.validator.js";
 
+//  controllers
+
 const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password, otp, avatar } = registerSchema.parse(
-    req.body
-  );
+  const { username, email, password, otp } = registerSchema.parse(req.body);
 
   const existingEmail = await User.findOne({ email });
   if (existingEmail) {
@@ -27,23 +28,32 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "Username is already taken");
   }
 
+  if (!req.file) {
+    throw new ApiError(400, "Avatar file is required");
+  }
+
+  const uploadAvatar = await uploadOnCloudinary(req.file.path);
+  if (!uploadAvatar) {
+    throw new ApiError(400, "Avatar file is not uploaded");
+  }
+
   const createUser = await User.create({
     username,
     email,
     password,
     otp,
-    avatar,
+    avatar: uploadAvatar.url,
   });
 
   const user = await User.findById(createUser._id).select("-password -otp");
 
   return res
     .status(201)
-    .json(new ApiResponse(201, user, "User successfully registered"));
+    .json(new ApiResponse(201, user, "User registered successfully"));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = loginValidate.parse(req.body);
+  const { username, email, password } = loginValidator.parse(req.body);
 
   const existingUser = await User.findOne({
     $or: [{ email }, { username }],
@@ -105,7 +115,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 const changePassword = asyncHandler(async (req, res) => {
-  const { prevPassword, newPassword } = changePasswordSchema.parse(req.body);
+  const { prevPassword, newPassword } = passwordValidator.parse(req.body);
 
   const user = await User.findById(req.user._id);
 
@@ -138,8 +148,8 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateUserProfile = asyncHandler(async (req, res) => {
-  const { setUsername, setEmail, setAvatar } = updateUserSchema.parse(req.body);
-  if (!setUsername && !setEmail && !setAvatar) {
+  const { setUsername, setEmail } = updateUserSchema.parse(req.body);
+  if (!setUsername && !setEmail) {
     throw new ApiError(400, "Please provide data to change");
   }
 
@@ -148,10 +158,20 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   if (setUsername) updates.username = setUsername;
   if (setEmail) updates.email = setEmail;
 
+  if (!req.file) {
+    throw new ApiError(400, "Avatar file is required");
+  }
+
+  const uploadAvatar = await uploadOnCloudinary(req.file.path);
+  if (!uploadAvatar) {
+    throw new ApiError(400, "Avatar file not uploaded");
+  }
+  updates.avatar = uploadAvatar.url;
+
   const user = await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: updates,
+      $set: { ...updates },
     },
     { new: true }
   ).select("-password -otp");
@@ -160,6 +180,23 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, user, "User profile updated successfully"));
+});
+
+const refreshAccessToken = asyncHandler(async (req, res) => {
+  const accessToken = generateAccessToken(req.user._id);
+  const refreshToken = generateRefreshToken(req.user._id);
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 10 * 24 * 60 * 60 * 1000, // 10 days
+  };
+
+  return res
+    .status(200)
+    .cookie("refreshToken", refreshToken, cookieOptions)
+    .json(new ApiResponse(200, accessToken, "Tokens regenerate successfully"));
 });
 
 export {

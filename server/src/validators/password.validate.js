@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const changePasswordSchema = z
+export const passwordValidator = z
   .object({
     prevPassword: z.string("Previous password is required"),
     newPassword: z

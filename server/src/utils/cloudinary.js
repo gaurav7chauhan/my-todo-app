@@ -9,17 +9,19 @@ cloudinary.config({
 
 export const uploadOnCloudinary = async (localFilePath) => {
   try {
-    if (!localFilePath) return console.log("File path not found");
-
+    if (!localFilePath) {
+      console.log("File path not found");
+      return null;
+    }
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "image",
     });
 
     // ✅ Cloud pe successfully upload hone ke baad local file delete karo
-    fs.unlinkSync(localFilePath);
+    await fs.unlink(localFilePath);
     return response;
   } catch (error) {
-    fs.unlinkSync(localFilePath);
+    await fs.unlink(localFilePath);
     return null;
   }
 };
