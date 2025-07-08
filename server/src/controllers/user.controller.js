@@ -1,5 +1,6 @@
-import { Todo } from "../models/todo.schema.js";
-import { User } from "../models/user.schema.js";
+import { Otp } from "../models/otp.model.js";
+import { Todo } from "../models/todo.model.js";
+import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -7,11 +8,15 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import {
   generateAccessToken,
   generateRefreshToken,
+  verifyRefreshToken,
 } from "../utils/generateToken.js";
+import { verifyAndUseOtp } from "../utils/verifyAndUseOtp.js";
 import { loginValidator } from "../validators/login.validator.js";
+import { verifyOtpSchema } from "../validators/otp.validator.js";
 import { passwordValidator } from "../validators/password.validate.js";
 import { updateUserSchema } from "../validators/updatedUserValidator.js";
 import { registerSchema } from "../validators/user.validator.js";
+import { sendOtp } from "./otp.controller.js";
 
 //  controllers
 
@@ -37,15 +42,16 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar file is not uploaded");
   }
 
+  await verifyAndUseOtp(email, otp, "register");
+
   const createUser = await User.create({
     username,
     email,
     password,
-    otp,
     avatar: uploadAvatar.url,
   });
 
-  const user = await User.findById(createUser._id).select("-password -otp");
+  const user = await User.findById(createUser._id).select("-password");
 
   return res
     .status(201)
@@ -53,7 +59,7 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = loginValidator.parse(req.body);
+  const { username, email, password, otp } = loginValidator.parse(req.body);
 
   const existingUser = await User.findOne({
     $or: [{ email }, { username }],
@@ -74,8 +80,10 @@ const loginUser = asyncHandler(async (req, res) => {
   await existingUser.save({ validateBeforeSave: false });
 
   const user = await User.findById(existingUser._id).select(
-    "-password -otp -refreshToken"
+    "-password -refreshToken"
   );
+
+  await verifyAndUseOtp(email, otp, "login");
 
   const cookieOptions = {
     httpOnly: true,
@@ -98,7 +106,7 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
-  const user = req.user._id; //from auth.middleware
+  const user = req.user._id; //  from auth.middleware
   await User.findByIdAndUpdate(
     user,
     {
@@ -183,8 +191,23 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-  const accessToken = generateAccessToken(req.user._id);
-  const refreshToken = generateRefreshToken(req.user._id);
+  const tokenFromCookie = req.cookies?.refreshToken;
+  const tokenFromHeader = req.headers["authorization"].replace("Bearer ", "");
+
+  const incomingRefreshToken = tokenFromCookie || tokenFromHeader;
+
+  if (!incomingRefreshToken) {
+    throw new ApiError(401, "Refresh token missing");
+  }
+
+  const decoded = verifyRefreshToken(incomingRefreshToken);
+
+  if (!decoded || !decoded._id) {
+    throw new ApiError(401, "Invalid or expired refresh token");
+  }
+
+  const accessToken = generateAccessToken(decoded._id);
+  const refreshToken = generateRefreshToken(decoded._id);
 
   const cookieOptions = {
     httpOnly: true,
@@ -206,4 +229,5 @@ export {
   changePassword,
   getCurrentUser,
   updateUserProfile,
+  refreshAccessToken,
 };

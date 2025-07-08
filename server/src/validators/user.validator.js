@@ -19,7 +19,7 @@ export const registerSchema = z.object({
     .regex(/[@$!%*?&#]/, "Password must include at least one special character")
     .trim(),
 
-  otp: z.number().optional(),
-
   avatar: z.string().url("Avatar must be a valid URL").optional(),
+
+  otp: z.string().length(4),
 });

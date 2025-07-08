@@ -11,6 +11,8 @@ export const loginValidator = z
 
     email: z.string().email("Email is invalid").trim().optional(),
 
+    otp: z.string().number(4),
+
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
