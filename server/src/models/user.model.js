@@ -19,10 +19,6 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    otp: {
-      type: Number,
-      min: 1000,
-    },
     avatar: {
       type: String,
     },

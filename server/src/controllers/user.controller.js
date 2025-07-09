@@ -12,8 +12,9 @@ import {
 } from "../utils/generateToken.js";
 import { verifyAndUseOtp } from "../utils/verifyAndUseOtp.js";
 import { loginValidator } from "../validators/login.validator.js";
-import { verifyOtpSchema } from "../validators/otp.validator.js";
+import { sendOtpSchema, verifyOtpSchema } from "../validators/otp.validator.js";
 import { passwordValidator } from "../validators/password.validate.js";
+import { resetPasswordSchema } from "../validators/resetPasswordSchema.js";
 import { updateUserSchema } from "../validators/updatedUserValidator.js";
 import { registerSchema } from "../validators/user.validator.js";
 import { sendOtp } from "./otp.controller.js";
@@ -222,6 +223,24 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, accessToken, "Tokens regenerate successfully"));
 });
 
+const resetPassword = asyncHandler(async (req, res) => {
+  const { email, otp, newPassword } = resetPasswordSchema.parse(req.body);
+
+  await verifyAndUseOtp(email, otp, "reset");
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  user.password = newPassword;
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Password reset successfully"));
+});
+
 export {
   registerUser,
   loginUser,
@@ -230,4 +249,5 @@ export {
   getCurrentUser,
   updateUserProfile,
   refreshAccessToken,
+  resetPassword,
 };
