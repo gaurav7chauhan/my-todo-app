@@ -24,4 +24,10 @@ app.use(cookieParser());
 app.use(express.static("public"));
 //✔️ Ye static file serve karta hai — jaise images, CSS, HTML jo public/ folder me rakhe ho.
 
+// routing
+import userRoute from "./routes/user.route";
+
+// route
+app.use("/api/v1/user", userRoute);
+
 export { app };
