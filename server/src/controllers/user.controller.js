@@ -11,17 +11,15 @@ import {
   verifyRefreshToken,
 } from "../utils/generateToken.js";
 import { verifyAndUseOtp } from "../utils/verifyAndUseOtp.js";
-import { loginValidator } from "../validators/login.validator.js";
-import { sendOtpSchema, verifyOtpSchema } from "../validators/otp.validator.js";
-import { passwordValidator } from "../validators/password.validate.js";
-import { resetPasswordSchema } from "../validators/resetPasswordSchema.js";
-import { updateUserSchema } from "../validators/updatedUserValidator.js";
-import { registerSchema } from "../validators/user.validator.js";
-import { sendOtp } from "./otp.controller.js";
+import { loginValidator } from "../validators/user/login.validator.js";
+import { passwordValidator } from "../validators/user/password.validate.js";
+import { resetPasswordSchema } from "../validators/user/resetPasswordSchema.js";
+import { updateUserSchema } from "../validators/user/updatedUserValidator.js";
+import { registerSchema } from "../validators/user/user.validator.js";
 
 //  controllers
 
-const registerUser = asyncHandler(async (req, res) => {
+export const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password, otp } = registerSchema.parse(req.body);
 
   const existingEmail = await User.findOne({ email });
@@ -59,7 +57,7 @@ const registerUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, user, "User registered successfully"));
 });
 
-const loginUser = asyncHandler(async (req, res) => {
+export const loginUser = asyncHandler(async (req, res) => {
   const { username, email, password, otp } = loginValidator.parse(req.body);
 
   const existingUser = await User.findOne({
@@ -106,7 +104,7 @@ const loginUser = asyncHandler(async (req, res) => {
     );
 });
 
-const logoutUser = asyncHandler(async (req, res) => {
+export const logoutUser = asyncHandler(async (req, res) => {
   const user = req.user._id; //  from auth.middleware
   await User.findByIdAndUpdate(
     user,
@@ -123,7 +121,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "User successfully logged out"));
 });
 
-const changePassword = asyncHandler(async (req, res) => {
+export const changePassword = asyncHandler(async (req, res) => {
   const { prevPassword, newPassword } = passwordValidator.parse(req.body);
 
   const user = await User.findById(req.user._id);
@@ -141,7 +139,7 @@ const changePassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, null, "Password changed successfully."));
 });
 
-const getCurrentUser = asyncHandler(async (req, res) => {
+export const getCurrentUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id).select("-password -otp");
   if (!user) throw new ApiError(404, "User not found");
 
@@ -156,7 +154,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     );
 });
 
-const updateUserProfile = asyncHandler(async (req, res) => {
+export const updateUserProfile = asyncHandler(async (req, res) => {
   const { setUsername, setEmail } = updateUserSchema.parse(req.body);
   if (!setUsername && !setEmail) {
     throw new ApiError(400, "Please provide data to change");
@@ -191,7 +189,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "User profile updated successfully"));
 });
 
-const refreshAccessToken = asyncHandler(async (req, res) => {
+export const refreshAccessToken = asyncHandler(async (req, res) => {
   const tokenFromCookie = req.cookies?.refreshToken;
   const tokenFromHeader = req.headers["authorization"].replace("Bearer ", "");
 
@@ -223,7 +221,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, accessToken, "Tokens regenerate successfully"));
 });
 
-const resetPassword = asyncHandler(async (req, res) => {
+export const resetPassword = asyncHandler(async (req, res) => {
   const { email, otp, newPassword } = resetPasswordSchema.parse(req.body);
 
   await verifyAndUseOtp(email, otp, "reset");
@@ -240,14 +238,3 @@ const resetPassword = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, null, "Password reset successfully"));
 });
-
-export {
-  registerUser,
-  loginUser,
-  logoutUser,
-  changePassword,
-  getCurrentUser,
-  updateUserProfile,
-  refreshAccessToken,
-  resetPassword,
-};

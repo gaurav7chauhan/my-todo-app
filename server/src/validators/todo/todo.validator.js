@@ -10,8 +10,6 @@ export const todoSchema = z.object({
   
   description: z.string().trim().optional(),
   
-  owner: z.string(),
-  
   isCompleted: z.boolean().default(false),
   
   priority: z.enum(["low", "medium", "high"]).optional(),
