@@ -39,9 +39,6 @@ const todoSchema = new Schema(
 
 // ✅ Indexes for better performance
 todoSchema.index({ owner: 1 });         // Most important
-todoSchema.index({ isCompleted: 1 });   // If filtering by complete/incomplete
-todoSchema.index({ priority: 1 });      // If filtering by priority
-todoSchema.index({ tags: 1 });          // If filtering by tag(s)
 
 // Compound index (optional, based on your query pattern)
 todoSchema.index({ owner: 1, _id: 1 });

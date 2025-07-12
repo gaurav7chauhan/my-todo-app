@@ -13,7 +13,7 @@ import {
 import { verifyAndUseOtp } from "../utils/verifyAndUseOtp.js";
 import { loginValidator } from "../validators/user/login.validator.js";
 import { passwordValidator } from "../validators/user/password.validate.js";
-import { resetPasswordSchema } from "../validators/user/resetPasswordSchema.js";
+import { forgetPasswordSchema } from "../validators/user/forgetPasswordSchema.js";
 import { updateUserSchema } from "../validators/user/updatedUserValidator.js";
 import { registerSchema } from "../validators/user/user.validator.js";
 
@@ -32,22 +32,21 @@ export const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "Username is already taken");
   }
 
-  if (!req.file) {
-    throw new ApiError(400, "Avatar file is required");
+  let avatarUrl = "";
+  if (req.file) {
+    const uploadAvatar = await uploadOnCloudinary(req.file.path);
+    if (!uploadAvatar) {
+      throw new ApiError(400, "Avatar file is not uploaded");
+    }
+    avatarUrl = uploadAvatar.url;
   }
-
-  const uploadAvatar = await uploadOnCloudinary(req.file.path);
-  if (!uploadAvatar) {
-    throw new ApiError(400, "Avatar file is not uploaded");
-  }
-
   await verifyAndUseOtp(email, otp, "register");
 
   const createUser = await User.create({
     username,
     email,
     password,
-    avatar: uploadAvatar.url,
+    ...(avatarUrl && { avatar: avatarUrl }),
   });
 
   const user = await User.findById(createUser._id).select("-password");
@@ -165,15 +164,13 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
   if (setUsername) updates.username = setUsername;
   if (setEmail) updates.email = setEmail;
 
-  if (!req.file) {
-    throw new ApiError(400, "Avatar file is required");
+  if (req.file) {
+    const uploadAvatar = await uploadOnCloudinary(req.file.path);
+    if (!uploadAvatar) {
+      throw new ApiError(400, "Avatar file not uploaded");
+    }
+    updates.avatar = uploadAvatar.url;
   }
-
-  const uploadAvatar = await uploadOnCloudinary(req.file.path);
-  if (!uploadAvatar) {
-    throw new ApiError(400, "Avatar file not uploaded");
-  }
-  updates.avatar = uploadAvatar.url;
 
   const user = await User.findByIdAndUpdate(
     req.user._id,
@@ -221,10 +218,10 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, accessToken, "Tokens regenerate successfully"));
 });
 
-export const resetPassword = asyncHandler(async (req, res) => {
-  const { email, otp, newPassword } = resetPasswordSchema.parse(req.body);
+export const forgetPassword = asyncHandler(async (req, res) => {
+  const { email, otp, newPassword } = forgetPasswordSchema.parse(req.body);
 
-  await verifyAndUseOtp(email, otp, "reset");
+  await verifyAndUseOtp(email, otp, "forget");
 
   const user = await User.findOne({ email });
   if (!user) {
@@ -236,5 +233,5 @@ export const resetPassword = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, null, "Password reset successfully"));
+    .json(new ApiResponse(200, null, "Password update successfully"));
 });

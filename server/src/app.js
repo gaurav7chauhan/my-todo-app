@@ -25,9 +25,13 @@ app.use(express.static("public"));
 //✔️ Ye static file serve karta hai — jaise images, CSS, HTML jo public/ folder me rakhe ho.
 
 // routing
+import otpRoute from "./routes/otp.route";
 import userRoute from "./routes/user.route";
+import todoRoute from "./routes/todo.route";
 
 // route
+app.use("api/v1/otp", otpRoute);
 app.use("/api/v1/user", userRoute);
+app.use("/api/v1/todos", todoRoute);
 
 export { app };

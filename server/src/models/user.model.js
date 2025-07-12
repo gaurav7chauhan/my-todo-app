@@ -47,14 +47,3 @@ userSchema.methods.isPasswordMatch = async function (password) {
 
 export const User = mongoose.model("User", userSchema);
 
-
-// ✅ Must-Have User Controllers for a Todo App
-// Controller Name            	   Purpose
-// registerUser	                  For user signup
-// loginUser	                    For user login
-// logoutUser	                    To clear refresh token and logout
-// getCurrentUser	                To fetch currently logged-in user’s info
-// changePassword	                To update password after login
-// updateUserProfile	            (Optional) Update username, email, etc.
-// refreshAccessToken	             Regenerate access token using refresh token
-

@@ -17,5 +17,5 @@ export const verifyAndUseOtp = async (email, otp, type) => {
   }
 
   existingOtp.used = true;
-  await existingOtp.save();     //validatebeforesave not used beacuse it already have all prop above
+  await existingOtp.save(); //validatebeforesave not used beacuse it already have all prop above
 };

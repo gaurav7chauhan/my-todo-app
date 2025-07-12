@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const resetPasswordSchema = z.object({
+export const forgetPasswordSchema = z.object({
   email: z.string().email().trim(),
   otp: z.string().length(4),
   newPassword: z
