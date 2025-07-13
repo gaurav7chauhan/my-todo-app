@@ -1,4 +1,3 @@
-import { verifyJwt } from "../middleware/auth.middleware";
 import { Router } from "express";
 import {
   createTodo,
@@ -7,14 +6,14 @@ import {
   getSingleTodo,
   toggleTodoStatus,
   updateTodo,
-} from "../controllers/todo.controller";
+} from "../controllers/todo.controller.js";
 
-const router = Router();
+const todoRoute = Router();
 
-router.route("/").post(createTodo).get(getAllTodos);
+todoRoute.route("/").post(createTodo).get(getAllTodos);
 
-router.route("/:id").get(getSingleTodo).patch(updateTodo).delete(deleteTodo);
+todoRoute.route("/:id").get(getSingleTodo).patch(updateTodo).delete(deleteTodo);
 
-router.patch("/:id/toggle", toggleTodoStatus);
+todoRoute.patch("/:id/toggle", toggleTodoStatus);
 
 export default todoRoute;

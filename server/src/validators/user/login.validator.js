@@ -11,7 +11,7 @@ export const loginValidator = z
 
     email: z.string().email("Email is invalid").trim().optional(),
 
-    otp: z.string().number(4),
+    otp: z.number(4),
 
     password: z
       .string()

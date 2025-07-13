@@ -7,7 +7,7 @@ import {
   logoutUser,
   refreshAccessToken,
   registerUser,
-  resetPassword,
+  forgetPassword,
   updateUserProfile,
 } from "../controllers/user.controller.js";
 import { upload } from "../middleware/multer.js";
@@ -21,7 +21,7 @@ router.route("/login").post(loginUser);
 
 router.route("/tokens").get(refreshAccessToken);
 
-router.route("/password-reset").patch(resetPassword);
+router.route("/password-reset").patch(forgetPassword);
 
 // ✅ Protected routes — Authentication required
 router.use(verifyJwt);
@@ -36,4 +36,4 @@ router
   .route("/update-profile")
   .patch(upload.single("avatar"), updateUserProfile);
 
-export default userRoute;
+export default router;
