@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
+import fs from "fs/promises";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -17,7 +17,6 @@ export const uploadOnCloudinary = async (localFilePath) => {
       resource_type: "image",
     });
 
-    // ✅ Cloud pe successfully upload hone ke baad local file delete karo
     await fs.unlink(localFilePath);
     return response;
   } catch (error) {

@@ -21,5 +21,5 @@ export const registerSchema = z.object({
 
   avatar: z.string().url("Avatar must be a valid URL").optional(),
 
-  otp: z.string().length(4),
+  otp: z.string().length(4).optional(),
 });

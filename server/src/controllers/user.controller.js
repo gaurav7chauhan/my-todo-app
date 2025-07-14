@@ -40,7 +40,9 @@ export const registerUser = asyncHandler(async (req, res) => {
     }
     avatarUrl = uploadAvatar.url;
   }
-  await verifyAndUseOtp(email, otp, "register");
+  if (otp) {
+    await verifyAndUseOtp(email, otp, "register");
+  }
 
   const createUser = await User.create({
     username,
@@ -81,7 +83,9 @@ export const loginUser = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
-  await verifyAndUseOtp(email, otp, "login");
+  if (otp) {
+    await verifyAndUseOtp(email, otp, "login");
+  }
 
   const cookieOptions = {
     httpOnly: true,
@@ -121,7 +125,8 @@ export const logoutUser = asyncHandler(async (req, res) => {
 });
 
 export const changePassword = asyncHandler(async (req, res) => {
-  const { prevPassword, newPassword } = passwordValidator.parse(req.body);
+  const { prevPassword, newPassword, confirmPassword } =
+    passwordValidator.parse(req.body);
 
   const user = await User.findById(req.user._id);
 
@@ -139,7 +144,9 @@ export const changePassword = asyncHandler(async (req, res) => {
 });
 
 export const getCurrentUser = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password -otp");
+  const user = await User.findById(req.user._id).select(
+    "-password -refreshToken"
+  );
   if (!user) throw new ApiError(404, "User not found");
 
   const todos = await Todo.find({ owner: user._id }).select(
@@ -155,9 +162,6 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 
 export const updateUserProfile = asyncHandler(async (req, res) => {
   const { setUsername, setEmail } = updateUserSchema.parse(req.body);
-  if (!setUsername && !setEmail) {
-    throw new ApiError(400, "Please provide data to change");
-  }
 
   const updates = {};
 
@@ -178,7 +182,7 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
       $set: { ...updates },
     },
     { new: true }
-  ).select("-password -otp");
+  ).select("-password -refreshToken");
   if (!user) throw new ApiError(400, "User not found");
 
   return res
@@ -187,41 +191,58 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
 });
 
 export const refreshAccessToken = asyncHandler(async (req, res) => {
-  const tokenFromCookie = req.cookies?.refreshToken;
-  const tokenFromHeader = req.headers["authorization"].replace("Bearer ", "");
+  const incomingRefreshToken =
+    req.cookies?.refreshToken ||
+    req.body?.refreshToken ||
+    req.header("Authorization")?.replace("Bearer ", "");
 
-  const incomingRefreshToken = tokenFromCookie || tokenFromHeader;
-
-  if (!incomingRefreshToken) {
-    throw new ApiError(401, "Refresh token missing");
+  if (!incomingRefreshToken || typeof incomingRefreshToken !== "string") {
+    throw new ApiError(401, "Refresh token missing or invalid");
   }
 
-  const decoded = verifyRefreshToken(incomingRefreshToken);
+  try {
+    const decoded = verifyRefreshToken(incomingRefreshToken);
 
-  if (!decoded || !decoded._id) {
-    throw new ApiError(401, "Invalid or expired refresh token");
+    const userId = decoded.userId;
+
+    if (!userId) {
+      throw new ApiError(401, "Invalid or expired refresh token");
+    }
+
+    const user = await User.findById(userId);
+
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 10 * 24 * 60 * 60 * 1000, // 10 days
+    };
+
+    return res
+      .status(200)
+      .cookie("refreshToken", refreshToken, cookieOptions)
+      .json(
+        new ApiResponse(
+          200,
+          { accessToken: accessToken },
+          "Tokens regenerate successfully"
+        )
+      );
+  } catch (error) {
+    console.error("Error while verifying refresh token:", error);
+    throw new ApiError(401, error?.message || "Invalid refresh token");
   }
-
-  const accessToken = generateAccessToken(decoded._id);
-  const refreshToken = generateRefreshToken(decoded._id);
-
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 10 * 24 * 60 * 60 * 1000, // 10 days
-  };
-
-  return res
-    .status(200)
-    .cookie("refreshToken", refreshToken, cookieOptions)
-    .json(new ApiResponse(200, accessToken, "Tokens regenerate successfully"));
 });
 
 export const forgetPassword = asyncHandler(async (req, res) => {
   const { email, otp, newPassword } = forgetPasswordSchema.parse(req.body);
 
-  await verifyAndUseOtp(email, otp, "forget");
+  if (otp) {
+    await verifyAndUseOtp(email, otp, "forget");
+  }
 
   const user = await User.findOne({ email });
   if (!user) {

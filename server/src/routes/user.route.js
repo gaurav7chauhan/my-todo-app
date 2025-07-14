@@ -19,7 +19,7 @@ router.route("/register").post(upload.single("avatar"), registerUser);
 
 router.route("/login").post(loginUser);
 
-router.route("/tokens").get(refreshAccessToken);
+router.route("/tokens").patch(refreshAccessToken);
 
 router.route("/password-reset").patch(forgetPassword);
 
