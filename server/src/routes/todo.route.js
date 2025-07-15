@@ -7,13 +7,16 @@ import {
   toggleTodoStatus,
   updateTodo,
 } from "../controllers/todo.controller.js";
+import { verifyJwt } from "../middleware/auth.middleware.js";
 
 const todoRoute = Router();
 
+todoRoute.use(verifyJwt);
+
 todoRoute.route("/").post(createTodo).get(getAllTodos);
 
-todoRoute.route("/:id").get(getSingleTodo).patch(updateTodo).delete(deleteTodo);
+todoRoute.route("/:todoId").get(getSingleTodo).patch(updateTodo).delete(deleteTodo);
 
-todoRoute.patch("/:id/toggle", toggleTodoStatus);
+todoRoute.patch("/:todoId/toggle", toggleTodoStatus);
 
 export default todoRoute;

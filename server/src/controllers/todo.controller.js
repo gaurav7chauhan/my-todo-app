@@ -41,8 +41,8 @@ export const getAllTodos = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit; // Kitne todos skip karne hain DB se
 
   //sorting
-  const sortBy = req.query.sortBy || "createdAt";   // Kis field pe sorting karni hai (e.g., createdAt, priority.)
-  const order = req.query.order === "asc" ? 1 : -1;     //asc (1) ya desc (-1)
+  const sortBy = req.query.sortBy || "createdAt"; // Kis field pe sorting karni hai (e.g., createdAt, priority.)
+  const order = req.query.order === "asc" ? 1 : -1; //asc (1) ya desc (-1)
 
   const todos = await Todo.find({ owner: user })
     .sort({ [sortBy]: order })
@@ -50,8 +50,6 @@ export const getAllTodos = asyncHandler(async (req, res) => {
     .limit(limit)
     .select("textInput title isCompleted createdAt")
     .explain("executionStats");
-
-  console.log(result.executionStats.executionStages);
 
   if (!todos || todos.length === 0) {
     throw new ApiError(404, "No todos found for this user.");
@@ -93,7 +91,7 @@ export const updateTodo = asyncHandler(async (req, res) => {
   const { todoId } = req.params;
   const user = req.user._id;
 
-  const { textInput, title, description, priority, tags } =
+  const { textInput, title, description, priority, tags, isCompleted } =
     updateTodoSchema.parse(req.body);
 
   const updates = {};
@@ -107,6 +105,8 @@ export const updateTodo = asyncHandler(async (req, res) => {
   if (priority) updates.priority = priority;
 
   if (tags) updates.tags = tags;
+
+  if (isCompleted) updates.isCompleted = isCompleted;
 
   const todo = await Todo.findOneAndUpdate(
     { owner: user, _id: todoId },

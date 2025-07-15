@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { optional, z } from "zod";
 
 export const todoSchema = z.object({
     textInput: z
@@ -10,7 +10,7 @@ export const todoSchema = z.object({
   
   description: z.string().trim().optional(),
   
-  isCompleted: z.boolean().default(false),
+  isCompleted: z.boolean().default(false).optional(),
   
   priority: z.enum(["low", "medium", "high"]).optional(),
   
