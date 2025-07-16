@@ -6,10 +6,9 @@ import Button from "../components/Button";
 const Register = () => {
   const { register, handleSubmit } = useForm();
   const navigate = useNavigate();
-  const [serverError, setServerError] = useState();
+  const [serverMessage, setServerMessage] = useState("");
 
   const onSubmit = async (data) => {
-    console.log("Sending data:", data); // ✅ Check this
     try {
       const res = await fetch("http://localhost:8000/api/v1/user/register", {
         method: "POST",
@@ -24,15 +23,15 @@ const Register = () => {
       }
 
       alert(result?.message || "Registeration successfull");
-      //   navigate("/otp");
+        navigate("/otp");
     } catch (error) {
-      setServerError(error.message);
+      setServerMessage(error.message);
     }
   };
 
   return (
     <div>
-      {serverError && <p>{serverError}</p>}
+      {serverMessage && <p>{serverMessage}</p>}
       <form onSubmit={handleSubmit(onSubmit)}>
         <h2>Register</h2>
         {/* username */}
@@ -42,7 +41,6 @@ const Register = () => {
             type="text"
             {...register("username", { required: "Username is required" })}
           />
-          {/* {serverError && <p>{serverError}</p>} */}
         </div>
         {/* email */}
         <div>
@@ -51,7 +49,6 @@ const Register = () => {
             type="email"
             {...register("email", { required: "Email is required" })}
           />
-          {/* {serverError && <p>{serverError}</p>} */}
         </div>
         {/* password */}
         <div>
@@ -60,7 +57,6 @@ const Register = () => {
             type="password"
             {...register("password", { required: "Password is required" })}
           />
-          {/* {serverError && <p>{serverError}</p>} */}
         </div>
         <Button type="submit">Register</Button>
 

@@ -43,7 +43,6 @@ export const registerUser = asyncHandler(async (req, res) => {
   if (otp) {
     await verifyAndUseOtp(email, otp, "register");
   }
-console.log("Incoming req.body:", req.body);
 
   const createUser = await User.create({
     username,
@@ -99,12 +98,9 @@ export const loginUser = asyncHandler(async (req, res) => {
     .status(200)
     .cookie("refreshToken", refreshToken, cookieOptions)
     .json(
-      new ApiResponse(
-        200,
-        user,
-        { accessToken: accessToken },
-        "User successfully logged in"
-      )
+      new ApiResponse(200, user, "User Successfully Logged In", {
+        accessToken: accessToken,
+      })
     );
 });
 

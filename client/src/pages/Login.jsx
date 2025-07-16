@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 const Login = () => {
-  const [serverError, setServerError] = useState("");
+  const [serverMessage, setServerMessage] = useState("");
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
 
@@ -26,12 +26,13 @@ const Login = () => {
       alert(result?.message || "Login Successfull!");
       navigate("/otp");
     } catch (error) {
-      setServerError(error.message);
+      setServerMessage(error.message);
     }
   };
 
   return (
     <div>
+      {serverMessage && <p>{serverMessage}</p>}
       <form onSubmit={handleSubmit(onSubmit)}>
         <h2>Login</h2>
         {/* username */}
@@ -41,7 +42,6 @@ const Login = () => {
             type="text"
             {...register("username", { required: "Username is required" })}
           />
-          {serverError && <p>{serverError}</p>}
         </div>
         {/* Email */}
         <div>
@@ -50,7 +50,6 @@ const Login = () => {
             type="email"
             {...register("email", { required: "email is required" })}
           />
-          {serverError && <p>{serverError}</p>}
         </div>
         {/* Password */}
         <div>
@@ -59,7 +58,6 @@ const Login = () => {
             type="password"
             {...register("password", { required: "Password is required" })}
           />
-          {serverError && <p>{serverError}</p>}
         </div>
         <Button type="submit">🚀 Login</Button>
       </form>
