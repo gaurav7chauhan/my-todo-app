@@ -43,6 +43,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   if (otp) {
     await verifyAndUseOtp(email, otp, "register");
   }
+console.log("Incoming req.body:", req.body);
 
   const createUser = await User.create({
     username,
