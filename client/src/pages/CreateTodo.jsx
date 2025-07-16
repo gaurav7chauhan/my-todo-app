@@ -1,14 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 
 const CreateTodo = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const { register, handleSubmit } = useForm();
+  const [serverMessage, setServerMessage] = useState("");
   const navigate = useNavigate();
   const todoSubmit = async (data) => {
     try {
@@ -28,12 +25,13 @@ const CreateTodo = () => {
       alert(result?.message || "Todo created successfully");
       navigate("/");
     } catch (error) {
-      throw new Error(error.message);
+      setServerMessage(error.message);
     }
   };
   return (
     <div>
-      <h2>CreateTodo</h2>
+      {serverMessage && <p>{serverMessage}</p>}
+      <h2>Create Todo</h2>
       <form onSubmit={handleSubmit(todoSubmit)}>
         {/* title */}
         <input
@@ -41,7 +39,6 @@ const CreateTodo = () => {
           placeholder="Title"
           {...register("title", { required: "Title is required" })}
         />
-        {errors.title && <p>{errors.title.message}</p>}
 
         {/* input text */}
         <textarea
@@ -49,7 +46,6 @@ const CreateTodo = () => {
           placeholder="Write todo..."
           {...register("textInput", { required: "Please write something" })}
         />
-        {errors.textInput && <p>{errors.textInput.message}</p>}
 
         {/* decription */}
         <input
@@ -60,10 +56,11 @@ const CreateTodo = () => {
 
         {/* prority */}
         <select {...register("priority")}>
-          <option>Select Priority</option>
-          <option>Low</option>
-          <option>Medium</option>
-          <option>High</option>
+          <option value="">Select Priority</option>{" "}
+          {/* 👈 empty value (default) */}
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
         </select>
 
         {/* isCompleted */}
