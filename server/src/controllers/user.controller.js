@@ -147,7 +147,7 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
   if (!user) throw new ApiError(404, "User not found");
 
   const todos = await Todo.find({ owner: user._id }).select(
-    "title description isCompleted"
+    "title isCompleted"
   );
 
   return res

@@ -15,6 +15,10 @@ const EditTodo = () => {
         const res = await fetch(
           `http://localhost:8000/api/v1/todos/${todoId}`,
           {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
             credentials: "include",
           }
         );
@@ -22,10 +26,11 @@ const EditTodo = () => {
         const result = await res.json();
 
         if (!res.ok) {
-          throw new Error(result?.message || "Failed to fetch todo");
+          throw new Error(result?.message || "Failed to fetch existing todo");
         }
+      alert("editTodo:",result.message)
 
-        reset(result); // Pre-fill form
+        reset(result.data); // Pre-fill form
       } catch (error) {
         setServerMessage(error.message);
       }
@@ -100,7 +105,7 @@ const EditTodo = () => {
           {...register("tags")}
         />
 
-        <Button type="submit">Update Todo</Button>
+        <button type="submit">Update Todo</button>
       </form>
     </div>
   );

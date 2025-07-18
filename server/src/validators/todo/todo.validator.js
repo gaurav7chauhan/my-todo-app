@@ -12,7 +12,7 @@ export const todoSchema = z.object({
   
   isCompleted: z.boolean().default(false).optional(),
   
-  priority: z.enum(["low", "medium", "high"]).optional(),
+  priority: z.enum(["Low", "Medium", "High"]).optional(),
   
   tags: z.array(z.string()).optional(),
 });

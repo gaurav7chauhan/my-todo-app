@@ -48,8 +48,7 @@ export const getAllTodos = asyncHandler(async (req, res) => {
     .sort({ [sortBy]: order })
     .skip(skip)
     .limit(limit)
-    .select("textInput title isCompleted createdAt")
-    .explain("executionStats");
+    .select("title isCompleted")
 
   if (!todos || todos.length === 0) {
     throw new ApiError(404, "No todos found for this user.");

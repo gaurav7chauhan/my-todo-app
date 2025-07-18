@@ -24,6 +24,7 @@ const CreateTodo = () => {
 
       alert(result?.message || "Todo created successfully");
       navigate("/");
+      alert("createtodo:",result.message)
     } catch (error) {
       setServerMessage(error.message);
     }
