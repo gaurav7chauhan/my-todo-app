@@ -2,9 +2,7 @@ import { z } from "zod";
 
 export const loginValidator = z
   .object({
-    username: z.string().trim().optional(),
-
-    email: z.string().trim().optional(),
+    identifier: z.string().trim().optional(),
 
     otp: z.number(4).optional(),
 

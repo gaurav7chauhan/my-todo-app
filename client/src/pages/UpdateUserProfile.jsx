@@ -5,10 +5,13 @@ import { useNavigate } from "react-router-dom";
 
 const UpdateUserProfile = () => {
   const navigate = useNavigate();
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [submitting, setSubmitting] = useState(false);
   const [serverMessage, setServerMessage] = useState("");
 
   const updateProfile = async (data) => {
+    setSubmitting(true);
+    setServerMessage("");
     try {
       const res = await fetch(
         `http://localhost:8000/api/v1/user/update-profile/`,
@@ -23,24 +26,34 @@ const UpdateUserProfile = () => {
       if (!res.ok) {
         throw new Error(result.message);
       }
-      alert(result?.message);
-      navigate("/");
+      setServerMessage(result?.message);
+      setTimeout(() => navigate("/"), 2000); //Delay to show message
     } catch (error) {
       setServerMessage(error.message);
+    } finally {
+      setSubmitting(false);
     }
   };
+
   return (
     <div>
       {serverMessage && <p>{serverMessage}</p>}
       <h2>UpdateUserProfile</h2>
       <form onSubmit={handleSubmit(updateProfile)}>
-        <input
-          type="text"
-          placeholder="Username"
-          {...register("setUsername")}
-        />
-        <input type="text" placeholder="Email" {...register("setEmail")} />
-        <button type="submit">Update</button>
+        <div>
+          <label htmlFor="username">Username</label>
+          <input id="username" type="text" {...register("setUsername")} />
+          {errors.setUsername && <span>{errors.setUsername.message}</span>}
+        </div>
+
+        <div>
+          <label htmlFor="email">Email</label>
+          <input id="email" type="text" {...register("setEmail")} />
+          {errors.setEmail && <span>{errors.setEmail.message}</span>}
+        </div>
+        <button type="submit" disabled={submitting}>
+          {submitting ? "Updating" : "Update"}
+        </button>
       </form>
     </div>
   );

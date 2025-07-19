@@ -59,20 +59,27 @@ export const registerUser = asyncHandler(async (req, res) => {
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
-  const { username, email, password, otp } = loginValidator.parse(req.body);
+  const { identifier, password, otp } = loginValidator.parse(req.body);
 
-  const existingUser = await User.findOne({
-    $or: [{ email }, { username }],
-  });
+  // 1. Better email format check (covers more than just Gmail)
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+
+  // 2. Find user:
+  const existingUser = await User.findOne(
+    isEmail ? { email: identifier } : { username: identifier }
+  );
+
   if (!existingUser) {
     throw new ApiError(404, "User not found. Please register to continue.");
   }
 
+  // 3. Password check:
   const verifyPassword = await existingUser.isPasswordMatch(password);
   if (!verifyPassword) {
     throw new ApiError(401, "Incorrect password. Please try again.");
   }
 
+  // 4. Tokens (no changes needed for this part):
   const accessToken = generateAccessToken(existingUser._id);
   const refreshToken = generateRefreshToken(existingUser._id);
 
@@ -83,9 +90,12 @@ export const loginUser = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
+  // 5. OTP check:
   if (otp) {
-    await verifyAndUseOtp(email, otp, "login");
+    await verifyAndUseOtp(existingUser.email, otp, "login");
   }
+
+  // ...rest of your response logic
 
   const cookieOptions = {
     httpOnly: true,
