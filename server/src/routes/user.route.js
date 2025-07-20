@@ -26,7 +26,7 @@ router.route("/password-reset").patch(forgetPassword);
 // ✅ Protected routes — Authentication required
 router.use(verifyJwt);
 
-router.route("/logout").get(logoutUser);
+router.route("/logout").post(logoutUser);
 
 router.route("/password-change").patch(changePassword);
 

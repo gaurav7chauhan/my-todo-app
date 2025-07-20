@@ -1,16 +1,19 @@
-import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 
 const Logout = () => {
   const [serverMessage, setServerMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
+    setLoading(true);
+    setServerMessage("");
+
     try {
       const res = await fetch("http://localhost:8000/api/v1/user/logout", {
-        method: "GET",
+        method: "POST",
         credentials: "include",
       });
 
@@ -20,16 +23,26 @@ const Logout = () => {
         throw new Error(result?.message || "Logout failed");
       }
 
-      alert(result?.message || "Logged out successfully");
-      navigate("/login");
+      setServerMessage(result?.message || "Logged out successfully");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, [2000]);
     } catch (error) {
       setServerMessage(error.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) return <span>Loading...</span>;
+
   return (
     <div>
       {serverMessage && <p>{serverMessage}</p>}
-      <Button onClick={handleLogout}>Logout</Button>
+      <button onClick={handleLogout} disabled={loading}>
+        {loading ? "Logging out..." : "Logout"}
+      </button>
     </div>
   );
 };

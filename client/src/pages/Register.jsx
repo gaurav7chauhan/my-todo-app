@@ -4,11 +4,19 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 
 const Register = () => {
-  const { register, handleSubmit } = useForm();
-  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const [serverMessage, setServerMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const onSubmit = async (data) => {
+    setLoading(true);
+    setServerMessage("");
+
     try {
       const res = await fetch("http://localhost:8000/api/v1/user/register", {
         method: "POST",
@@ -22,12 +30,18 @@ const Register = () => {
         throw new Error(result?.message || "Register Failed");
       }
 
-      alert(result?.message || "Registeration successfull");
-        navigate("/otp");
+      setServerMessage(result?.message || "Registeration successfull");
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     } catch (error) {
       setServerMessage(error.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) return <span>Loading...</span>
 
   return (
     <div>
@@ -36,29 +50,42 @@ const Register = () => {
         <h2>Register</h2>
         {/* username */}
         <div>
-          <label>Username</label>
+          <label htmlFor="username">Username</label>
           <input
+            id="username"
             type="text"
+            autoComplete="username"
             {...register("username", { required: "Username is required" })}
           />
+          {errors.username && <span>{errors.username.message}</span>}
         </div>
+
         {/* email */}
         <div>
-          <label>Email</label>
+          <label htmlFor="email">Email</label>
           <input
+            id="email"
             type="email"
+            autoComplete="email"
             {...register("email", { required: "Email is required" })}
           />
+          {errors.email && <span>{errors.email.message}</span>}
         </div>
+
         {/* password */}
         <div>
-          <label>Password</label>
+          <label htmlFor="password">Password</label>
           <input
+            id="password"
             type="password"
+            autoComplete="password"
             {...register("password", { required: "Password is required" })}
           />
+          {errors.password && <span>{errors.password.message}</span>}
         </div>
-        <Button type="submit">Register</Button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Registering..." : "Register"}
+        </button>
 
         <p>
           <span>Already</span> have an account?{" "}

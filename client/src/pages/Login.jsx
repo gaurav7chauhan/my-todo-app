@@ -9,7 +9,6 @@ const Login = () => {
     register,
     handleSubmit,
     formState: { errors },
-    getValues,
   } = useForm();
 
   const onSubmit = async (data) => {
