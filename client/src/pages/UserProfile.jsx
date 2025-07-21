@@ -8,31 +8,35 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    const currentUser = async () => {
-      try {
-        const res = await fetch(
-          `http://localhost:8000/api/v1/user/current-user`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-        const result = await res.json();
+  const currentUser = async () => {
+    setLoading(true);
+    setServerMessage("");
 
-        if (!res.ok) {
-          throw new Error(result.message);
+    try {
+      const res = await fetch(
+        `http://localhost:8000/api/v1/user/current-user`,
+        {
+          method: "GET",
+          credentials: "include",
         }
+      );
+      const result = await res.json();
 
-        setTodos(result.data.todos);
-        setUser(result.data.user);
-        setServerMessage(result.message);
-      } catch (error) {
-        setServerMessage(error.message);
-      } finally {
-        setLoading(false);
+      if (!res.ok) {
+        throw new Error(result.message);
       }
-    };
+
+      setTodos(result.data.todos);
+      setUser(result.data.user);
+      setServerMessage(result.message);
+    } catch (error) {
+      setServerMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     currentUser();
   }, []);
 
@@ -45,7 +49,7 @@ const UserProfile = () => {
       {serverMessage && <div>{serverMessage}</div>}
       {user && (
         <div>
-          <img src={user.avatar} alt={user.username} />
+          {user.avatar && <img src={user.avatar} alt={user.username} />}
           <p>
             <strong>Username:</strong>
             {user.username}
@@ -61,11 +65,11 @@ const UserProfile = () => {
         <div>No todos yet.</div>
       ) : (
         <ul>
-          {todos.map((todo) => {
+          {todos.map((todo) => (
             <li key={todo._id}>
               {todo.title} {todo.isCompleted ? "✅" : "❌"}
-            </li>;
-          })}
+            </li>
+          ))}
         </ul>
       )}
       <button onClick={() => navigate("/")}>Go Home</button>

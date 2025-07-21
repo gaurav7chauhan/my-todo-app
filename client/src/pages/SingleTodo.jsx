@@ -22,38 +22,37 @@ const SingleTodo = () => {
   }, [serverMessage, messageType]);
 
   //  fetch todo
-  useEffect(() => {
-    const fetchSingleTodo = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `http://localhost:8000/api/v1/todos/${todoId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include", // if using auth
-          }
-        );
 
-        const result = await res.json();
+  const fetchUserProfile = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`http://localhost:8000/api/v1/todos/${todoId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // if using auth
+      });
 
-        if (!res.ok) {
-          throw new Error(result?.message || "Failed to fetch todo");
-        }
+      const result = await res.json();
 
-        setTodo(result.data); // assuming result is the todo object
-        setServerMessage(result.message);
-        setMessageType("success");
-      } catch (error) {
-        setServerMessage(error.message);
-        setMessageType("error");
-      } finally {
-        setLoading(false);
+      if (!res.ok) {
+        throw new Error(result?.message || "Failed to fetch todo");
       }
-    };
-    fetchSingleTodo();
+
+      setTodo(result.data); // assuming result is the todo object
+      setServerMessage(result.message);
+      setMessageType("success");
+    } catch (error) {
+      setServerMessage(error.message);
+      setMessageType("error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserProfile();
   }, [todoId]);
 
   // toggle status

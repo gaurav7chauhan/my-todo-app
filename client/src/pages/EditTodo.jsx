@@ -14,37 +14,37 @@ const EditTodo = () => {
   } = useForm();
   const [serverMessage, setServerMessage] = useState("");
 
-  useEffect(() => {
-    const fetchTodo = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          `http://localhost:8000/api/v1/todos/${todoId}`,
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-          }
-        );
-        const result = await res.json();
-        if (!res.ok) {
-          throw new Error(result?.message || "Failed to fetch existing todo");
-        }
-        // For debugging: console.log(result.message);
-        reset(result.data); // Make sure data keys match form fields!
-      } catch (error) {
-        setServerMessage(error.message);
-      } finally {
-        setLoading(false);
+  // fetch todo
+  const fetchTodo = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`http://localhost:8000/api/v1/todos/${todoId}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        throw new Error(result?.message || "Failed to fetch existing todo");
       }
-    };
+      // For debugging: console.log(result.message);
+      reset(result.data); // Make sure data keys match form fields!
+    } catch (error) {
+      setServerMessage(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
     fetchTodo();
   }, [todoId, reset]);
 
+  // update todo
   const updateTodo = async (data) => {
     setLoading(true);
     setServerMessage("");
-    
+
     // Process tags as an array if needed by backend
     data.tags = data.tags ? data.tags.split(",").map((tag) => tag.trim()) : [];
 

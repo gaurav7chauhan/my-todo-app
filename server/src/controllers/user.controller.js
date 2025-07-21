@@ -168,12 +168,12 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 export const updateUserProfile = asyncHandler(async (req, res) => {
-  const { setUsername, setEmail } = updateUserSchema.parse(req.body);
+  const { username, email } = updateUserSchema.parse(req.body);
 
   const updates = {};
 
-  if (setUsername) updates.username = setUsername;
-  if (setEmail) updates.email = setEmail;
+  if (username) updates.username = username;
+  if (email) updates.email = email;
 
   if (req.file) {
     const uploadAvatar = await uploadOnCloudinary(req.file.path);
