@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { data, Link, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 
 const Register = () => {
@@ -18,22 +18,19 @@ const Register = () => {
     setServerMessage("");
 
     try {
-      const res = await fetch("http://localhost:8000/api/v1/user/register", {
-        method: "POST",
+      const res = await fetch("http://localhost:8000/api/v1/otp/send", {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data),
+        body: JSON.stringify({ email: data.email, type: "register" }),
       });
 
       const result = await res.json();
+
       if (!res.ok) {
-        throw new Error(result?.message || "Register Failed");
+        throw new Error(result.message);
       }
 
-      setServerMessage(result?.message || "Registeration successfull");
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
+      navigate("/otp", { state: { ...data, type: "register" } });
     } catch (error) {
       setServerMessage(error.message);
     } finally {
@@ -41,7 +38,7 @@ const Register = () => {
     }
   };
 
-  if (loading) return <span>Loading...</span>
+  if (loading) return <span>Loading...</span>;
 
   return (
     <div>
