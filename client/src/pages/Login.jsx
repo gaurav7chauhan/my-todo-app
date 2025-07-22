@@ -15,25 +15,22 @@ const Login = () => {
     setLoading(true);
     setServerMessage("");
     try {
-      const payload = { identifier: data.identifier, password: data.password };
+      // const payload = { identifier: data.identifier, password: data.password };
 
-      const res = await fetch("http://localhost:8000/api/v1/user/login", {
-        method: "POST",
+      const res = await fetch("http://localhost:8000/api/v1/otp/send", {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // for sending cookies (refresh token)
-        body: JSON.stringify(payload),
+        // credentials: "include", // for sending cookies (refresh token)
+        body: JSON.stringify({ email: data.identifier, type: "login" }),
       });
 
-      console.log(res);
       const result = await res.json();
 
-      if (!res.ok) throw new Error(result?.message || "Login failed");
-
-      setServerMessage(result?.message || "Login Successfull!");
+      if (!res.ok) throw new Error(result?.message);
 
       setTimeout(() => {
-        navigate("/");
-      }, [1500]);
+        navigate("/otp", { state: { ...data, type: "login" } });
+      }, 1500);
     } catch (error) {
       setServerMessage(error.message);
     } finally {

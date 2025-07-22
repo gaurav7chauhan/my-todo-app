@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { data, Link, useNavigate } from "react-router-dom";
-import Button from "../components/Button";
 
 const Register = () => {
   const {
