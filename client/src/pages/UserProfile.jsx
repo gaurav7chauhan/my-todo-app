@@ -72,7 +72,7 @@ const UserProfile = () => {
           ))}
         </ul>
       )}
-      <button onClick={() => navigate("/")}>Go Home</button>
+      <button onClick={() => navigate("/home")}>Back</button>
     </div>
   );
 };

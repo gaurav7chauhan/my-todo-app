@@ -1,14 +1,9 @@
 import { z } from "zod";
 
-export const loginValidator = z
-  .object({
-    identifier: z.string().trim().optional(),
+export const loginValidator = z.object({
+  email: z.string().email().trim(),
 
-    otp: z.number(4).optional(),
+  otp: z.number(4).optional(),
 
-    password: z.string().trim(),
-  })
-  .refine((data) => data.username || data.email, {
-    message: "Please provide either username or email",
-    path: ["username"],
-  });
+  password: z.string().trim(),
+});

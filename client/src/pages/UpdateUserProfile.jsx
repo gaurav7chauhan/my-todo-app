@@ -64,7 +64,6 @@ const UpdateUserProfile = () => {
         throw new Error(result.message);
       }
       setServerMessage(result?.message);
-      setTimeout(() => navigate("/"), 2000); //Delay to show message
     } catch (error) {
       setServerMessage(error.message);
     } finally {
@@ -93,6 +92,7 @@ const UpdateUserProfile = () => {
         <button type="submit" disabled={submitting}>
           {submitting ? "Updating" : "Update"}
         </button>
+        <button onClick={() => navigate("/home")}>Back</button>
       </form>
     </div>
   );

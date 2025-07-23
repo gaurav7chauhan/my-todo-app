@@ -59,15 +59,10 @@ export const registerUser = asyncHandler(async (req, res) => {
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
-  const { identifier, password, otp } = loginValidator.parse(req.body);
-
-  // 1. Better email format check (covers more than just Gmail)
-  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+  const { email, password, otp } = loginValidator.parse(req.body);
 
   // 2. Find user:
-  const existingUser = await User.findOne(
-    isEmail ? { email: identifier } : { username: identifier }
-  );
+  const existingUser = await User.findOne({ email });
 
   if (!existingUser) {
     throw new ApiError(404, "User not found. Please register to continue.");

@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const SingleTodo = () => {
   const [serverMessage, setServerMessage] = useState("");
@@ -9,6 +9,7 @@ const SingleTodo = () => {
   const [loading, setLoading] = useState(true);
   const [todo, setTodo] = useState(null);
   const { todoId } = useParams();
+  const navigate = useNavigate();
 
   // clean timer
   useEffect(() => {
@@ -110,6 +111,7 @@ const SingleTodo = () => {
       </label>
 
       <p>Tags: {todo.tags?.join(", ")}</p>
+      <button onClick={() => navigate("/home")}>Home</button>
     </div>
   );
 };

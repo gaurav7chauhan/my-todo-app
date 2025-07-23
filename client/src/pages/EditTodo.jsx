@@ -60,7 +60,7 @@ const EditTodo = () => {
         throw new Error(result?.message || "Failed to update todo");
       }
       setServerMessage(result.message || "Todo updated successfully");
-      setTimeout(() => navigate("/"), 2000);
+      setTimeout(() => navigate("/home"), 2000);
     } catch (error) {
       setServerMessage(error.message);
     } finally {
@@ -142,7 +142,7 @@ const EditTodo = () => {
         <button type="submit" disabled={loading}>
           {loading ? "Updating..." : "Update"}
         </button>
-        <button type="button" onClick={() => navigate("/")}>
+        <button type="button" onClick={() => navigate("/home")}>
           Cancel
         </button>
       </form>
