@@ -10,11 +10,13 @@ const CreateTodo = () => {
   } = useForm();
   const [loading, setLoading] = useState(false);
   const [serverMessage, setServerMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
   const navigate = useNavigate();
 
   const todoSubmit = async (data) => {
     setLoading(true);
     setServerMessage("");
+    setMessageType("");
 
     data.tags = data.tags ? data.tags.split(",").map((tag) => tag.trim()) : [];
 
@@ -33,12 +35,14 @@ const CreateTodo = () => {
       }
 
       setServerMessage(result?.message || "Todo created successfully");
+      setMessageType(`✨ Todo created successfully!`);
 
       setTimeout(() => {
         navigate("/home");
       }, 1500);
     } catch (error) {
       setServerMessage(error.message);
+      setMessageType(`⚠️ something went wrong!`);
     } finally {
       setLoading(false);
     }
@@ -49,8 +53,14 @@ const CreateTodo = () => {
       <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8">
         {/* Server Message */}
         {serverMessage && (
-          <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-            {serverMessage}
+          <div
+            className={
+              messageType === "✨ Todo created successfully!"
+                ? "mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg"
+                : "mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+            }
+          >
+            {messageType} {console.log(serverMessage)}
           </div>
         )}
 
@@ -67,14 +77,14 @@ const CreateTodo = () => {
               htmlFor="title"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Title
+              Title*
             </label>
             <input
               id="title"
               type="text"
               placeholder="Enter todo title..."
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition duration-200"
-              {...register("title", { required: "Title is required" })}
+              {...register("title", { required: "field required" })}
             />
             {errors.title && (
               <span className="text-red-500 text-sm mt-1 block">
@@ -89,14 +99,14 @@ const CreateTodo = () => {
               htmlFor="text"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Content
+              Content*
             </label>
             <textarea
               id="text"
               rows={4}
               placeholder="Write your todo content..."
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition duration-200 resize-vertical"
-              {...register("textInput", { required: "Please write something" })}
+              {...register("textInput", { required: "field required" })}
             />
             {errors.textInput && (
               <span className="text-red-500 text-sm mt-1 block">

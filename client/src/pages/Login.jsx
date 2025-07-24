@@ -41,40 +41,35 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div>
       {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 items-center justify-center p-12">
-        <div className="text-center text-white">
-          <h1 className="text-5xl font-bold mb-4">Welcome Back!</h1>
-          <p className="text-xl opacity-90">We're excited to see you again</p>
-          <div className="mt-8 text-6xl">🌟</div>
+      <div>
+        <div>
+          <h1>Welcome Back!</h1>
+          <p>We're excited to see you again</p>
+          <div>🌟</div>
         </div>
       </div>
 
       {/* Right Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
-        <div className="max-w-md w-full">
+      <div>
+        <div>
           {/* Server Message */}
           {serverMessage && (
-            <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
-              <p className="text-blue-800 font-medium">{serverMessage}</p>
+            <div>
+              <p>{serverMessage}</p>
             </div>
           )}
 
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold text-gray-900 mb-2">Login</h2>
-            <div className="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded"></div>
+          <div>
+            <h2>Login</h2>
+            <div></div>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)}>
             {/* Username or Email */}
-            <div className="space-y-2">
-              <label
-                htmlFor="identifier"
-                className="text-sm font-semibold text-gray-700 block"
-              >
-                Username or Email
-              </label>
+            <div>
+              <label htmlFor="identifier">Username or Email</label>
               <input
                 id="identifier"
                 type="text"
@@ -83,28 +78,14 @@ const Login = () => {
                   required: "Username or Email is required",
                 })}
                 autoComplete="username"
-                className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-0 transition-all ${
-                  errors.identifier
-                    ? "border-red-400 focus:border-red-500 bg-red-50"
-                    : "border-gray-200 focus:border-blue-500"
-                }`}
               />
-              {errors.identifier && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.identifier.message}
-                </p>
-              )}
+              {errors.identifier && <p>{errors.identifier.message}</p>}
             </div>
 
             {/* Password with Show/Hide */}
-            <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="text-sm font-semibold text-gray-700 block"
-              >
-                Password
-              </label>
-              <div className="relative">
+            <div>
+              <label htmlFor="password">Password</label>
+              <div>
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
@@ -113,24 +94,13 @@ const Login = () => {
                     required: "Password is required",
                   })}
                   autoComplete="current-password"
-                  className={`w-full px-4 py-3 pr-12 border-2 rounded-xl focus:outline-none focus:ring-0 transition-all ${
-                    errors.password
-                      ? "border-red-400 focus:border-red-500 bg-red-50"
-                      : "border-gray-200 focus:border-blue-500"
-                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showPassword ? (
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -139,12 +109,7 @@ const Login = () => {
                       />
                     </svg>
                   ) : (
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -161,34 +126,17 @@ const Login = () => {
                   )}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.password.message}
-                </p>
-              )}
+              {errors.password && <p>{errors.password.message}</p>}
             </div>
 
             {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full py-4 px-6 rounded-xl font-semibold text-lg transition-all duration-300 ${
-                loading
-                  ? "bg-gray-400 text-white cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transform hover:-translate-y-1 hover:shadow-xl"
-              }`}
-            >
+            <button type="submit" disabled={loading}>
               {loading ? "Logging in..." : "🚀 Login"}
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <a
-              href="/register"
-              className="text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Don't have an account? Sign up
-            </a>
+          <div>
+            <a href="/register">Don't have an account? Sign up</a>
           </div>
         </div>
       </div>
