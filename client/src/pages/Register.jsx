@@ -35,6 +35,7 @@ const Register = () => {
       const result = await res.json();
       if (!res.ok) {
         setServerMessage(result.message);
+        console.log(result)
         setLoading(false);
         return;
       }

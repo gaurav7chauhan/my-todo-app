@@ -20,7 +20,7 @@ import { registerSchema } from "../validators/user/user.validator.js";
 //  controllers
 
 export const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password, otp } = registerSchema.parse(req.body);
+  const { username, email, password, otp, type } = registerSchema.parse(req.body);
 
   const existingEmail = await User.findOne({ email });
   if (existingEmail) {
@@ -41,7 +41,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     avatarUrl = uploadAvatar.url;
   }
   if (otp) {
-    await verifyAndUseOtp(email, otp, "register");
+    await verifyAndUseOtp(email, otp, type);
   }
 
   const createUser = await User.create({

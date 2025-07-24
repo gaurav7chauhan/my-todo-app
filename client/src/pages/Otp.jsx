@@ -37,6 +37,7 @@ const Otp = () => {
     const payload = {
       email: state.email,
       password: state.password,
+      type: state.type,
       otp: otp,
     };
 

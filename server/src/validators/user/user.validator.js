@@ -15,10 +15,9 @@ export const registerSchema = z.object({
     .string()
     .min(8, "Password must be at least 8 characters")
     .max(18, "Password must not be more than 18 characters")
-    .regex(/[A-Z]/, "Password must include at least one uppercase letter")
-    .regex(/[a-z]/, "Password must include at least one lowercase letter")
-    .regex(/[0-9]/, "Password must include at least one number")
-    .regex(/[@$!%*?&#]/, "Password must include at least one special character")
+    .regex(/[A-Z]/, "At least one uppercase letter")
+    .regex(/[a-z]/, "At least one lowercase letter")
+    .regex(/[0-9]/, "At least one number")
     .trim(),
 
   avatar: z.string().url("Avatar must be a valid URL").optional(),
