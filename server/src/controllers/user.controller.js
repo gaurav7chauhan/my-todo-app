@@ -20,7 +20,9 @@ import { registerSchema } from "../validators/user/user.validator.js";
 //  controllers
 
 export const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password, otp, type } = registerSchema.parse(req.body);
+  const { username, email, password, otp, type } = registerSchema.parse(
+    req.body
+  );
 
   const existingEmail = await User.findOne({ email });
   if (existingEmail) {
@@ -59,7 +61,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
-  const { email, password, otp } = loginValidator.parse(req.body);
+  const { email, password, otp, type } = loginValidator.parse(req.body);
 
   // 2. Find user:
   const existingUser = await User.findOne({ email });
@@ -87,7 +89,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   // 5. OTP check:
   if (otp) {
-    await verifyAndUseOtp(existingUser.email, otp, "login");
+    await verifyAndUseOtp(existingUser.email, otp, type);
   }
 
   // ...rest of your response logic
