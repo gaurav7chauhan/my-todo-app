@@ -6,4 +6,6 @@ export const loginValidator = z.object({
   otp: z.number(4).optional(),
 
   password: z.string().trim(),
+
+  type: z.enum(["register", "login", "forget"]),
 });

@@ -23,7 +23,7 @@ const Register = () => {
       const res = await fetch("http://localhost:8000/api/v1/otp/send", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        // credentials: "include",
         body: JSON.stringify({
           email: data.email,
           username: data.username,

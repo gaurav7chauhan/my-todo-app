@@ -22,8 +22,12 @@ const Login = () => {
       const res = await fetch("http://localhost:8000/api/v1/otp/send", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        // credentials: "include", // for sending cookies (refresh token)
-        body: JSON.stringify({ email: data.identifier, type: "login" }),
+        credentials: "include", // for sending cookies (refresh token)
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          type: "login",
+        }),
       });
 
       const result = await res.json();
@@ -31,7 +35,9 @@ const Login = () => {
       if (!res.ok) throw new Error(result?.message);
 
       setTimeout(() => {
-        navigate("/otp", { state: { ...data, type: "login" } });
+        navigate("/otp", {
+          state: { ...data, type: "login" },
+        });
       }, 1500);
     } catch (error) {
       setServerMessage(error.message);
@@ -69,17 +75,17 @@ const Login = () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* Username or Email */}
             <div>
-              <label htmlFor="identifier">Username or Email</label>
+              <label htmlFor="email">Username or Email</label>
               <input
-                id="identifier"
+                id="email"
                 type="text"
                 placeholder="Enter username or email"
-                {...register("identifier", {
+                {...register("email", {
                   required: "Username or Email is required",
                 })}
                 autoComplete="username"
               />
-              {errors.identifier && <p>{errors.identifier.message}</p>}
+              {errors.email && <p>{errors.email.message}</p>}
             </div>
 
             {/* Password with Show/Hide */}
