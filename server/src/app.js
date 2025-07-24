@@ -30,7 +30,7 @@ import router from "./routes/user.route.js";
 import todoRoute from "./routes/todo.route.js";
 
 // route
-app.use("api/v1/otp", otpRoute);
+app.use("/api/v1/otp", otpRoute);
 app.use("/api/v1/user", router);
 app.use("/api/v1/todos", todoRoute);
 

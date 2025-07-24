@@ -14,14 +14,14 @@ export const sendOtpEmail = async (email, otp) => {
       from: `"Todo-App" <${process.env.MAIL_USER}>`,
       to: email,
       subject: "Your OTP Code",
-      html: `<div style="font-family: sans-serif; padding: 10px;>
+      html: `<div style="font-family: sans-serif; padding: 10px;">
           <h2>Hello,</h2>
           <p>Your OTP Code is:</p>
           <h1 style="color: #333;">${otp}</h1>
           <p>This code is valid for 10 minutes. Do not share it with anyone.</p>
           <br />
           <small>If you did not request this, please ignore this email.</small>
-        </div>`,
+        </div>`, // <<< Fixed here
     };
 
     const info = await transporter.sendMail(mailOptions);
