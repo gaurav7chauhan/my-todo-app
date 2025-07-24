@@ -1,10 +1,11 @@
 import { Otp } from "../models/otp.model.js";
+import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { generateOtp } from "../utils/generateOtp.js";
 import { sendOtpEmail } from "../utils/sendMail.js";
-import { sendOtpSchema, verifyOtpSchema } from "../validators/otp.validator.js";
+import { registerSchema } from "../validators/user/user.validator.js";
 
 export const sendOtp = asyncHandler(async (req, res) => {
   // validate with Zod (sendOtpSchema)
@@ -13,7 +14,13 @@ export const sendOtp = asyncHandler(async (req, res) => {
   // save to DB (Otp.create)
   // send via sendOTPEmail()
   // return ApiResponse
-  const { email, type } = sendOtpSchema.parse(req.body);
+  const { email, type, username, password } = registerSchema.parse(req.body);
+
+  const existingEmail = await User.findOne({email});
+
+  if (type === "register" && existingEmail) {
+    throw new ApiError(409, "email already exists!")
+  }
 
   const existingOtp = await Otp.findOne({ email, type });
 

@@ -24,12 +24,19 @@ const Register = () => {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email: data.email, type: "register" }),
+        body: JSON.stringify({
+          email: data.email,
+          username: data.username,
+          password: data.password,
+          type: "register",
+        }),
       });
 
       const result = await res.json();
       if (!res.ok) {
-        throw new Error(result.message);
+        setServerMessage(result.message);
+        setLoading(false);
+        return;
       }
 
       navigate("/otp", { state: { ...data, type: "register" } });
@@ -43,9 +50,9 @@ const Register = () => {
   if (loading) return <span>Loading...</span>;
 
   return (
-    <div>
+    <div className="flex justify-center items-center bg-amber-400 w-full h-screen">
       {/* Left Side - Branding */}
-      <div>
+      {/* <div>
         <div>
           <div>🎉</div>
           <h1>Join Us Today!</h1>
@@ -65,7 +72,7 @@ const Register = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Right Side - Form */}
       <div>
@@ -82,7 +89,10 @@ const Register = () => {
             <div></div>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex gap-5 items-right flex-col"
+          >
             {/* Username */}
             <div>
               <label htmlFor="username">Username</label>

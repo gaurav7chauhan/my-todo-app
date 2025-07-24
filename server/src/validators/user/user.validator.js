@@ -9,6 +9,8 @@ export const registerSchema = z.object({
 
   email: z.string().email("Email is invalid").trim(),
 
+  type: z.enum(["register", "login", "forget"]),
+
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
