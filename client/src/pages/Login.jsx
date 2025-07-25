@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { sendOtpRequest } from "../utils/otp";
 const Login = () => {
   const [serverMessage, setServerMessage] = useState("");
   const navigate = useNavigate();
@@ -16,34 +17,25 @@ const Login = () => {
   const onSubmit = async (data) => {
     setLoading(true);
     setServerMessage("");
-    try {
-      // const payload = { identifier: data.identifier, password: data.password };
 
-      const res = await fetch("http://localhost:8000/api/v1/otp/send", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // for sending cookies (refresh token)
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-          type: "login",
-        }),
-      });
+    const { ok, result } = await sendOtpRequest({
+      email: data.email,
+      password: data.password,
+      type: "login",
+    });
 
-      const result = await res.json();
-
-      if (!res.ok) throw new Error(result?.message);
-
-      setTimeout(() => {
-        navigate("/otp", {
-          state: { ...data, type: "login" },
-        });
-      }, 1500);
-    } catch (error) {
-      setServerMessage(error.message);
-    } finally {
+    if (!ok) {
+      setServerMessage(result.message);
       setLoading(false);
+      return;
     }
+
+    setTimeout(() => {
+      navigate("/otp", {
+        state: { ...data, type: "login" },
+      });
+    }, 1500);
+    setLoading(false);
   };
 
   return (

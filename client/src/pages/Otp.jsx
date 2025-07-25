@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { sendOtpRequest } from "../utils/otp";
 
 const Otp = () => {
   const { state } = useLocation();
@@ -8,7 +9,38 @@ const Otp = () => {
   const [serverMessage, setServerMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendTimer, setResendTimer] = useState(30);
 
+  useEffect(() => {
+    let timer;
+    if (resendTimer > 0) {
+      timer = setTimeout(() => {
+        setResendTimer(resendTimer - 1);
+      }, 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendTimer]);
+
+  const handleResendOtp = async () => {
+    setLoading(true);
+
+    const { ok, data: result } = await sendOtpRequest({
+      email: state.email,
+      type: state.type,
+    });
+
+    if (!ok) {
+      setLoading(false);
+      setServerMessage(result.message);
+      return;
+    }
+
+    setServerMessage(result.message || "OTP resent successfully!");
+    setLoading(false);
+    setResendTimer(30);
+  };
+
+  // checking the state is not null
   useEffect(() => {
     if (!state) {
       navigate("/");
@@ -26,9 +58,10 @@ const Otp = () => {
   // because upper navigate is async takes time
 
   const handleOtpChange = (e) => {
-    setOtp(e.target.value);
+    setOtp(e.target.value.trim());
   };
 
+  // now handle the OTP
   const handleSubmit = async () => {
     setLoading(true);
     setServerMessage("");
@@ -40,6 +73,12 @@ const Otp = () => {
       type: state.type,
       otp: otp,
     };
+
+    if (!otp || otp.length !== 4) {
+      setLoading(false);
+      setServerMessage("Please enter a 4-digit OTP.");
+      return;
+    }
 
     if (state.type === "register") {
       payload.username = state.username;
@@ -90,6 +129,8 @@ const Otp = () => {
       } catch (error) {
         setServerMessage(error.message);
         setMessageType("something went wrong!");
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -128,6 +169,7 @@ const Otp = () => {
             <p>Please wait...</p>
           ) : (
             <p>{serverMessage}</p>
+            // <p>{otp === "" ? "please enter OTP" : serverMessage}</p>
           )}
         </div>
       )}
@@ -136,6 +178,10 @@ const Otp = () => {
       <div>
         <button disabled={loading} onClick={handleSubmit}>
           {loading ? "Verifying..." : "Verify OTP"}
+        </button>
+
+        <button onClick={handleResendOtp} disabled={loading || resendTimer > 0}>
+          {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
         </button>
 
         <Link to={state.type === "register" ? "/register" : "/login"}>

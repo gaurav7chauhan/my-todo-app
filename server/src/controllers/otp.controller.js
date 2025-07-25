@@ -16,10 +16,14 @@ export const sendOtp = asyncHandler(async (req, res) => {
   // return ApiResponse
   const { email, type, username, password } = registerSchema.parse(req.body);
 
-  const existingEmail = await User.findOne({email});
+  const existingUser = await User.findOne({ username });
+  if (type === "register" && existingUser) {
+    throw new ApiError(409, "Username already exists!");
+  }
 
+  const existingEmail = await User.findOne({ email });
   if (type === "register" && existingEmail) {
-    throw new ApiError(409, "email already exists!")
+    throw new ApiError(409, "email already exists!");
   }
 
   const existingOtp = await Otp.findOne({ email, type });
@@ -39,6 +43,7 @@ export const sendOtp = asyncHandler(async (req, res) => {
   if (!otp) {
     throw new ApiError(500, "OTP not generated");
   }
+  // Continue to verify OTP...
 
   await Otp.create({
     email,

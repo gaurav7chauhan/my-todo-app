@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import { sendOtpRequest } from "../utils/otp";
 
 const Register = () => {
   const {
@@ -9,7 +10,6 @@ const Register = () => {
     formState: { errors },
   } = useForm();
   const [serverMessage, setServerMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -18,34 +18,25 @@ const Register = () => {
     setLoading(true);
     setServerMessage("");
 
-    try {
-      serverMessage && <p>serverMessage</p>;
-      const res = await fetch("http://localhost:8000/api/v1/otp/send", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        // credentials: "include",
-        body: JSON.stringify({
-          email: data.email,
-          username: data.username,
-          password: data.password,
-          type: "register",
-        }),
-      });
+    const { ok, result } = await sendOtpRequest({
+      email: data.email,
+      username: data.username,
+      password: data.password,
+      type: "register",
+    });
 
-      const result = await res.json();
-      if (!res.ok) {
-        setServerMessage(result.message);
-        console.log(result)
-        setLoading(false);
-        return;
-      }
-
-      navigate("/otp", { state: { ...data, type: "register" } });
-    } catch (error) {
-      setServerMessage(error.message);
-    } finally {
+    if (!ok) {
+      setServerMessage(result.message);
       setLoading(false);
+      return;
     }
+
+    setTimeout(() => {
+      navigate("/otp", {
+        state: { ...data, type: "login" },
+      });
+    }, 1500);
+    setLoading(false);
   };
 
   if (loading) return <span>Loading...</span>;
