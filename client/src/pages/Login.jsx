@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { sendOtpRequest } from "../utils/otp";
+import { otpRequest } from "../utils/otp";
 const Login = () => {
   const [serverMessage, setServerMessage] = useState("");
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const Login = () => {
     setLoading(true);
     setServerMessage("");
 
-    const { ok, result } = await sendOtpRequest({
+    const { ok, result } = await otpRequest({
       email: data.email,
       password: data.password,
       type: "login",

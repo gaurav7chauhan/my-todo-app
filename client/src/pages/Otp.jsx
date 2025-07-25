@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { sendOtpRequest } from "../utils/otp";
+import { otpRequest } from "../utils/otp";
 
 const Otp = () => {
   const { state } = useLocation();
@@ -24,7 +24,7 @@ const Otp = () => {
   const handleResendOtp = async () => {
     setLoading(true);
 
-    const { ok, data: result } = await sendOtpRequest({
+    const { ok, result } = await otpRequest({
       email: state.email,
       type: state.type,
     });
@@ -32,12 +32,15 @@ const Otp = () => {
     if (!ok) {
       setLoading(false);
       setServerMessage(result.message);
+      setResendTimer(30);
       return;
     }
 
     setServerMessage(result.message || "OTP resent successfully!");
     setLoading(false);
-    setResendTimer(30);
+    setTimeout(() => {
+      navigate("/home");
+    }, 1500);
   };
 
   // checking the state is not null
@@ -184,9 +187,7 @@ const Otp = () => {
           {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
         </button>
 
-        <Link to={state.type === "register" ? "/register" : "/login"}>
-          Change email
-        </Link>
+        <Link to={state.username ? "/register" : "/login"}>Change email</Link>
       </div>
     </div>
   );

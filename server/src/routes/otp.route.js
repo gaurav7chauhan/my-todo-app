@@ -3,6 +3,6 @@ import { sendOtp } from "../controllers/otp.controller.js";
 
 const otpRoute = Router();
 
-otpRoute.patch("/send", sendOtp);
+otpRoute.post("/send", sendOtp);
 
 export default otpRoute;

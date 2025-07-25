@@ -24,6 +24,12 @@ export const registerUser = asyncHandler(async (req, res) => {
     req.body
   );
 
+  const existingUserOtp = await Otp.findOne({ email, otp });
+
+  if (!existingUserOtp) {
+    throw new ApiError(404, "")
+  }
+
   const existingEmail = await User.findOne({ email });
   if (existingEmail) {
     throw new ApiError(409, "User with this email already exists");

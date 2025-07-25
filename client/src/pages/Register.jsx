@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { sendOtpRequest } from "../utils/otp";
+import { otpRequest } from "../utils/otp";
 
 const Register = () => {
   const {
@@ -18,7 +18,7 @@ const Register = () => {
     setLoading(true);
     setServerMessage("");
 
-    const { ok, result } = await sendOtpRequest({
+    const { ok, result } = await otpRequest({
       email: data.email,
       username: data.username,
       password: data.password,
@@ -33,7 +33,7 @@ const Register = () => {
 
     setTimeout(() => {
       navigate("/otp", {
-        state: { ...data, type: "login" },
+        state: { ...data, type: "register" },
       });
     }, 1500);
     setLoading(false);
