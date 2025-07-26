@@ -41,7 +41,12 @@ export const sendOtp = asyncHandler(async (req, res) => {
       throw new ApiError(401, "Incorrect password. Please try again.");
     }
 
-    existingOtp = await Otp.findOne({ email, type });
+    existingOtp = await Otp.findOne({
+      email,
+      type,
+      used: false,
+      expiresAt: { $gt: new Date() },
+    });
   } else {
     throw new ApiError(400, "Invalid type");
   }

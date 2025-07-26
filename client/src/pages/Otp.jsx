@@ -9,7 +9,7 @@ const Otp = () => {
   const [serverMessage, setServerMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const [loading, setLoading] = useState(false);
-  const [resendTimer, setResendTimer] = useState(30);
+  const [resendTimer, setResendTimer] = useState(5);
 
   useEffect(() => {
     let timer;
@@ -26,21 +26,19 @@ const Otp = () => {
 
     const { ok, result } = await otpRequest({
       email: state.email,
+      password: state.password,
       type: state.type,
     });
 
     if (!ok) {
       setLoading(false);
       setServerMessage(result.message);
-      setResendTimer(30);
+      setResendTimer(5);
       return;
     }
 
     setServerMessage(result.message || "OTP resent successfully!");
     setLoading(false);
-    setTimeout(() => {
-      navigate("/home");
-    }, 1500);
   };
 
   // checking the state is not null
