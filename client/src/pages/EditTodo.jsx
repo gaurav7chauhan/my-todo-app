@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const EditTodo = () => {
+  const { state } = useLocation();
   const { todoId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true); // true for initial fetch
@@ -13,12 +14,13 @@ const EditTodo = () => {
     formState: { errors },
   } = useForm();
   const [serverMessage, setServerMessage] = useState("");
+  const id = todoId || state?.id;
 
   // fetch todo
   const fetchTodo = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/todos/${todoId}`, {
+      const res = await fetch(`http://localhost:8000/api/v1/todos/${id}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -38,7 +40,7 @@ const EditTodo = () => {
 
   useEffect(() => {
     fetchTodo();
-  }, [todoId, reset]);
+  }, [id, reset]);
 
   // update todo
   const updateTodo = async (data) => {
@@ -46,10 +48,8 @@ const EditTodo = () => {
     setServerMessage("");
 
     // Process tags as an array if needed by backend
-    data.tags = data.tags ? data.tags.split(",").map((tag) => tag.trim()) : [];
-
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/todos/${todoId}`, {
+      const res = await fetch(`http://localhost:8000/api/v1/todos/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -147,12 +147,7 @@ const EditTodo = () => {
                 <label htmlFor="priority">
                   Priority <span>*</span>
                 </label>
-                <select
-                  id="priority"
-                  {...register("priority", {
-                    required: "Priority is required",
-                  })}
-                >
+                <select id="priority" {...register("priority")}>
                   <option value="">Select Priority</option>
                   <option value="Low">🟢 Low</option>
                   <option value="Medium">🟡 Medium</option>

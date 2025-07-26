@@ -9,7 +9,7 @@ export const updateTodoSchema = z.object({
   
   isCompleted: z.boolean().optional(),
   
-  priority: z.enum(["low", "medium", "high"]).optional(),
+  priority: z.enum(["Low", "Medium", "High"]).optional(),
   
   tags: z.array(z.string()).optional(),
 });

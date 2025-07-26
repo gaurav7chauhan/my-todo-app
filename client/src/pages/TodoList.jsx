@@ -1,12 +1,10 @@
-import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
-import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
+import TodoTags from "../utils/TodoTags";
 
 const TodoList = () => {
   const [serverMessage, setServerMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
   const [loading, setLoading] = useState(true);
   const [totalTodos, setTotalTodos] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -18,7 +16,6 @@ const TodoList = () => {
   const fetchTodos = async () => {
     setLoading(true);
     setServerMessage("");
-    setMessageType("");
     try {
       const res = await fetch(
         `http://localhost:8000/api/v1/todos?page=${page}&limit=${limit}`,
@@ -43,10 +40,8 @@ const TodoList = () => {
       setTodos(result.data.todos);
 
       setServerMessage(result.message);
-      setMessageType("Please wait, loading...");
     } catch (error) {
       setServerMessage(error.message);
-      setMessageType("something went wrong!");
     } finally {
       setLoading(false);
     }
@@ -89,12 +84,7 @@ const TodoList = () => {
         ) : (
           <>
             {/* Server Message */}
-            {serverMessage && (
-              <div>
-                {messageType}
-                {console.log(serverMessage)}
-              </div>
-            )}
+            {serverMessage && <div>{serverMessage}</div>}
 
             {/* Header */}
             <div>
@@ -134,12 +124,13 @@ const TodoList = () => {
               {todos.map((todo) => (
                 <div
                   key={todo._id}
-                  onClick={() => navigate(`/todo/${todo._id}`)}
+                  onClick={() => navigate(`/todo`, { state: { id: todo._id } })}
                 >
                   <div>
                     <div>
-                      <h3>{todo.title}</h3>
-                      {todo.description && <p>{todo.description}</p>}
+                      <label htmlFor="title">Title</label>
+                      <h3 id="title">{todo.title}</h3>
+                      <p>{todo.inputText}</p>
 
                       {/* Todo Meta Info */}
                       <div>
@@ -154,16 +145,7 @@ const TodoList = () => {
                           </span>
                         )}
                         {todo.isCompleted && <span>✅ Completed</span>}
-                        {todo.tags && todo.tags.length > 0 && (
-                          <div>
-                            {todo.tags.slice(0, 2).map((tag, index) => (
-                              <span key={index}>#{tag.trim()}</span>
-                            ))}
-                            {todo.tags.length > 2 && (
-                              <span>+{todo.tags.length - 2} more</span>
-                            )}
-                          </div>
-                        )}
+                        {<TodoTags tags={todo.tags} />}
                       </div>
                     </div>
 
@@ -172,7 +154,7 @@ const TodoList = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/edit/${todo._id}`);
+                          navigate(`/edit-todo`, { state: { id: todo._id } });
                         }}
                       >
                         ✏️ Edit

@@ -35,14 +35,14 @@ const CreateTodo = () => {
       }
 
       setServerMessage(result?.message || "Todo created successfully");
-      setMessageType(`✨ Todo created successfully!`);
+      setMessageType("success");
 
       setTimeout(() => {
         navigate("/home");
       }, 1500);
     } catch (error) {
       setServerMessage(error.message);
-      setMessageType(`⚠️ something went wrong!`);
+      setMessageType("error");
     } finally {
       setLoading(false);
     }
@@ -55,12 +55,12 @@ const CreateTodo = () => {
         {serverMessage && (
           <div
             className={
-              messageType === "✨ Todo created successfully!"
+              messageType === "success"
                 ? "mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg"
                 : "mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg"
             }
           >
-            {messageType} {console.log(serverMessage)}
+            {serverMessage}console.log({messageType})
           </div>
         )}
 
