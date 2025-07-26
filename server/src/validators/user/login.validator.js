@@ -7,5 +7,5 @@ export const loginValidator = z.object({
 
   password: z.string().trim(),
 
-  type: z.enum(["register", "login", "forget"]),
+  type: z.literal("login"),
 });

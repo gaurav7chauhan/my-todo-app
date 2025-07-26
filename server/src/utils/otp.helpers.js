@@ -1,5 +1,6 @@
-import { Otp } from "../models/otp.model";
-import { sendOtpEmail } from "./sendMail";
+import { Otp } from "../models/otp.model.js";
+import { generateOtp } from "./generateOtp.js";
+import { sendOtpEmail } from "./sendMail.js";
 
 export function isOtpValid(otpDoc) {
   return otpDoc && !otpDoc.used && otpDoc.expiresAt > Date.now();

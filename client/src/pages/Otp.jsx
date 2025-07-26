@@ -83,6 +83,7 @@ const Otp = () => {
       return;
     }
 
+    // sending api requests for register, login
     if (state.type === "register") {
       payload.username = state.username;
 

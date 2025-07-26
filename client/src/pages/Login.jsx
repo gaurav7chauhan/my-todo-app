@@ -20,7 +20,6 @@ const Login = () => {
 
     const { ok, result } = await otpRequest({
       email: data.email,
-      password: data.password,
       type: "login",
     });
 
@@ -65,17 +64,17 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Username or Email */}
+            {/* Email */}
             <div>
-              <label htmlFor="email">Username or Email</label>
+              <label htmlFor="email">Email</label>
               <input
                 id="email"
                 type="text"
-                placeholder="Enter username or email"
+                placeholder="Enter email"
                 {...register("email", {
-                  required: "Username or Email is required",
+                  required: "mail is required",
                 })}
-                autoComplete="username"
+                autoComplete="email"
               />
               {errors.email && <p>{errors.email.message}</p>}
             </div>
