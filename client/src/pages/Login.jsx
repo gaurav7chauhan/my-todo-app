@@ -20,6 +20,7 @@ const Login = () => {
 
     const { ok, result } = await otpRequest({
       email: data.email,
+      password: data.password,
       type: "login",
     });
 

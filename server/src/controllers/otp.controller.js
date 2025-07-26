@@ -6,7 +6,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { generateAndSendOtp, isOtpValid } from "../utils/otp.helpers.js";
 import { sendOtpEmail } from "../utils/sendMail.js";
 import { registerSchema } from "../validators/user/user.validator.js";
-import { loginOtpValidator } from "../validators/user/loginOtp.validator.js";
+import { loginValidator } from "../validators/user/login.validator.js";
 
 export const sendOtp = asyncHandler(async (req, res) => {
   let parsed;
@@ -26,9 +26,20 @@ export const sendOtp = asyncHandler(async (req, res) => {
 
     existingOtp = await Otp.findOne({ email, type });
   } else if (req.body.type === "login") {
-    parsed = loginOtpValidator.parse(req.body);
+    parsed = loginValidator.parse(req.body);
 
-    ({ email, type } = parsed);
+    ({ email, type, password } = parsed);
+
+    const existingUser = await User.findOne({ email });
+
+    if (!existingUser) {
+      throw new ApiError(404, "User not found. Please register to continue.");
+    }
+
+    const verifyPassword = await existingUser.isPasswordMatch(password);
+    if (!verifyPassword) {
+      throw new ApiError(401, "Incorrect password. Please try again.");
+    }
 
     existingOtp = await Otp.findOne({ email, type });
   } else {
