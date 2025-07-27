@@ -14,6 +14,10 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import EntryPage from "./pages/EntryPage";
 
+// Import toast components
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const App = () => {
   return (
     <>
@@ -31,6 +35,20 @@ const App = () => {
         <Route path="/todos" element={<TodoList />} />
         <Route path="/edit-todo" element={<EditTodo />} />
       </Routes>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ zIndex: 9999 }}
+      />
     </>
   );
 };

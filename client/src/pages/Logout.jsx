@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/Button";
 
 const Logout = () => {
   const [serverMessage, setServerMessage] = useState("");
